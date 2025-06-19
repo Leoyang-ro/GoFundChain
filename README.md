@@ -153,20 +153,10 @@ go-fund-chain/
 
 ---
 
-## 🎁 可参考开源项目
+## 🎁 参考开源项目
 
 * [https://github.com/ConsenSys/go-blockchain-fund](https://github.com/ConsenSys/go-blockchain-fund)
 * [https://github.com/ipfs/go-ipfs-api](https://github.com/ipfs/go-ipfs-api)
 * [https://github.com/ethereum/go-ethereum](https://github.com/ethereum/go-ethereum)
 
----
 
-## 🎯 如果你想一步步做：
-
-我可以帮你：
-
-* ✅ 生成初始化代码骨架
-* ✅ 编写某个模块的实现（如 IPFS 上传 / 智能合约交互）
-* ✅ 本地调试指南（Ganache + go-ethereum）
-
-你现在想从哪个模块开始搭建？我可以帮你写第一个完整模块的代码。
