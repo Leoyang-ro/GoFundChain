@@ -1,15 +1,7 @@
 package main
 
-import (
-    "fmt"
-    "time"
-)
-
-func pause() {
-    time.Sleep(2 * time.Second)
-}
+import "sensorcli/cmd"
 
 func main() {
-    fmt.Println("Hello, World12!")
-    pause()   
+	cmd.Execute()
 }
