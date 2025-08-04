@@ -7,12 +7,17 @@ sensorcli write --addr 0x48 --reg 0x02 --value 0x55 --bus 1
 | 功能     | 实现方式                                             |
 | ------ | ------------------------------------------------ |
 | 命令解析   | `cobra` 框架                                       |
-| 参数处理   | `pflag` + cobra                                  |
+| 参数处理   | `pflag` + cobra                                    |
 | I2C 访问 | Linux 的 `/dev/i2c-*`，使用 `syscall` or `periph.io` |
-| 可扩展性   | 可以加 SPI、UART、日志导出等模块                             |
+| 可扩展性   | 可以加 SPI、UART、日志导出等模块                     |
 
+```sh
+GOPATH D:\goenv
+GOROOT C:\Program Files\Go
+%GOROOT%\bin %GOPATH%\bin
+```
 
-
+```sh
 sensorcli/
 ├── cmd/
 │   ├── root.go        # 主命令定义
@@ -25,3 +30,4 @@ sensorcli/
 ├── main.go            # 程序入口
 ├── go.mod
 └── README.md
+```
