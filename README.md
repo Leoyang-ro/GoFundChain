@@ -30,7 +30,7 @@ sensorcli/
 ├── main.go            # 程序入口
 ├── go.mod
 └── README.md
-```
+
 
 cmd/read.go
 package cmd
@@ -100,3 +100,4 @@ func ReadByte(busNum int, addr uint8, reg uint8) (byte, error) {
     }
     return read[0], nil
 }
+```
