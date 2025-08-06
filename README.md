@@ -1,7 +1,16 @@
-# 读取设备地址 0x48 的寄存器 0x01
+
+### 跨平台 传感器调试套件（适配工程师和开发者
+```sh
+用 C 写核心驱动（如 I2C/SPI 通信）
+Go 实现 CLI 调试工具 & 后端服务
+Python 做 GUI + 数据可视化（支持 JSON/CSV 导出）
+```
+### 📦 产品形式：一套调试工具（支持 CLI + GUI）
+
+#### 读取设备地址 0x48 的寄存器 0x01
 sensorcli read --addr 0x48 --reg 0x01 --bus 1
 
-# 向设备地址 0x48 的寄存器 0x02 写入 0x55
+#### 向设备地址 0x48 的寄存器 0x02 写入 0x55
 sensorcli write --addr 0x48 --reg 0x02 --value 0x55 --bus 1
 
 | 功能     | 实现方式                                             |
@@ -30,74 +39,3 @@ sensorcli/
 ├── main.go            # 程序入口
 ├── go.mod
 └── README.md
-
-
-cmd/read.go
-package cmd
-
-import (
-    "fmt"
-    "strconv"
-
-    "sensorcli/i2c"
-    "github.com/spf13/cobra"
-)
-
-var (
-    addr uint
-    reg  uint
-    bus  int
-)
-
-var readCmd = &cobra.Command{
-    Use:   "read",
-    Short: "读取I2C寄存器的值",
-    Run: func(cmd *cobra.Command, args []string) {
-        data, err := i2c.ReadByte(bus, uint8(addr), uint8(reg))
-        if err != nil {
-            fmt.Println("读取失败：", err)
-            return
-        }
-        fmt.Printf("读取值: 0x%X\n", data)
-    },
-}
-
-func init() {
-    rootCmd.AddCommand(readCmd)
-    readCmd.Flags().UintVar(&addr, "addr", 0x00, "I2C设备地址")
-    readCmd.Flags().UintVar(&reg, "reg", 0x00, "寄存器地址")
-    readCmd.Flags().IntVar(&bus, "bus", 1, "I2C总线编号")
-}
-
-i2c/linux.go
-
-package i2c
-
-import (
-    "periph.io/x/conn/v3/i2c/i2creg"
-    "periph.io/x/conn/v3/i2c"
-    "periph.io/x/host/v3"
-)
-
-func ReadByte(busNum int, addr uint8, reg uint8) (byte, error) {
-    _, err := host.Init()
-    if err != nil {
-        return 0, err
-    }
-
-    bus, err := i2creg.Open(fmt.Sprintf("/dev/i2c-%d", busNum))
-    if err != nil {
-        return 0, err
-    }
-    defer bus.Close()
-
-    dev := &i2c.Dev{Addr: addr, Bus: bus}
-    write := []byte{reg}
-    read := make([]byte, 1)
-
-    if err := dev.Tx(write, read); err != nil {
-        return 0, err
-    }
-    return read[0], nil
-}
-```
