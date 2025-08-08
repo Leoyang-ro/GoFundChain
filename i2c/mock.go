@@ -1,27 +1,33 @@
 package i2c
 
 import (
-	// "fmt"
+	"fmt"
 	"sync"
 )
 
 // MockDevice 模拟I2C设备实现
 type MockDevice struct {
-	addr      uint8
+	config    *DeviceConfig
 	registers map[uint8]uint8
 	mu        sync.RWMutex
+	closed    bool
 }
 
 // NewMockDevice 创建模拟I2C设备
-func NewMockDevice(addr uint8) *MockDevice {
+func NewMockDevice(config *DeviceConfig) *MockDevice {
 	return &MockDevice{
-		addr:      addr,
+		config:    config,
 		registers: make(map[uint8]uint8),
+		closed:    false,
 	}
 }
 
 // ReadRegister 读取寄存器值
 func (dev *MockDevice) ReadRegister(reg uint8) (uint8, error) {
+	if dev.closed {
+		return 0, fmt.Errorf("设备已关闭")
+	}
+
 	dev.mu.RLock()
 	defer dev.mu.RUnlock()
 
@@ -36,6 +42,10 @@ func (dev *MockDevice) ReadRegister(reg uint8) (uint8, error) {
 
 // WriteRegister 写入寄存器值
 func (dev *MockDevice) WriteRegister(reg, value uint8) error {
+	if dev.closed {
+		return fmt.Errorf("设备已关闭")
+	}
+
 	dev.mu.Lock()
 	defer dev.mu.Unlock()
 
@@ -45,6 +55,14 @@ func (dev *MockDevice) WriteRegister(reg, value uint8) error {
 
 // ReadBytes 读取多个字节
 func (dev *MockDevice) ReadBytes(reg uint8, count int) ([]byte, error) {
+	if dev.closed {
+		return nil, fmt.Errorf("设备已关闭")
+	}
+
+	if count <= 0 {
+		return nil, fmt.Errorf("无效的读取字节数: %d", count)
+	}
+
 	dev.mu.RLock()
 	defer dev.mu.RUnlock()
 
@@ -63,6 +81,14 @@ func (dev *MockDevice) ReadBytes(reg uint8, count int) ([]byte, error) {
 
 // WriteBytes 写入多个字节
 func (dev *MockDevice) WriteBytes(reg uint8, data []byte) error {
+	if dev.closed {
+		return fmt.Errorf("设备已关闭")
+	}
+
+	if len(data) == 0 {
+		return fmt.Errorf("写入数据为空")
+	}
+
 	dev.mu.Lock()
 	defer dev.mu.Unlock()
 
@@ -78,8 +104,19 @@ func (dev *MockDevice) Close() error {
 	dev.mu.Lock()
 	defer dev.mu.Unlock()
 
+	dev.closed = true
 	dev.registers = nil
 	return nil
+}
+
+// GetAddress 获取设备地址
+func (dev *MockDevice) GetAddress() uint8 {
+	return dev.config.Address
+}
+
+// GetBus 获取总线号
+func (dev *MockDevice) GetBus() int {
+	return dev.config.Bus
 }
 
 // GetRegisters 获取所有寄存器值（用于调试）
@@ -94,8 +131,15 @@ func (dev *MockDevice) GetRegisters() map[uint8]uint8 {
 	return result
 }
 
+// IsClosed 检查设备是否已关闭
+func (dev *MockDevice) IsClosed() bool {
+	dev.mu.RLock()
+	defer dev.mu.RUnlock()
+	return dev.closed
+}
+
 // openPlatform 平台特定的打开函数
-func openPlatform(bus int, addr uint8) (Device, error) {
+func openPlatform(config *DeviceConfig) (Device, error) {
 	// 在Windows环境下使用模拟实现
-	return NewMockDevice(addr), nil
+	return NewMockDevice(config), nil
 }
